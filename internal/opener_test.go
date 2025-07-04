@@ -6,6 +6,7 @@ package internal
 
 import (
 	"context"
+	"net/url"
 	"testing"
 
 	"cloudeng.io/algo/digests"
@@ -47,7 +48,7 @@ func TestPerFile(t *testing.T) {
 	spec := bulkspec.Files{
 		Prefix: "file:///tmp",
 		Files: []bulkspec.File{
-			{Name: "foo.txt", Output: "foo.out"},
+			{NameOrID: "foo.txt", Output: "foo.out"},
 		},
 	}
 	files, openFunc, err := PerFile(spec)
@@ -90,9 +91,13 @@ func TestContextWithOpenerInfoAndOpenerInfo(t *testing.T) {
 }
 
 func TestNewLocalLargeFile_Error(t *testing.T) {
+	u, err := url.Parse("file:///tmp/nonexistentfile")
+	if err != nil {
+		t.Fatalf("failed to parse URL: %v", err)
+	}
 	// Should fail to open non-existent file
-	pf := PerFileInfo{DownloadPath: "/no/such/file"}
-	_, err := newLocalLargeFile(context.Background(), bulkspec.Config{}, pf)
+	pf := PerFileInfo{DownloadURI: u}
+	_, err = newLocalLargeFile(context.Background(), bulkspec.Config{}, pf)
 	if err == nil {
 		t.Errorf("expected error for missing file")
 	}
@@ -100,8 +105,13 @@ func TestNewLocalLargeFile_Error(t *testing.T) {
 
 func TestNewHTTPLargeFile_Error(t *testing.T) {
 	// Should fail for invalid URL
-	pf := PerFileInfo{DownloadPath: "http://localhost:0/doesnotexist"}
-	_, err := newHTTPLargeFile(context.Background(), bulkspec.Config{}, pf)
+	u, err := url.Parse("http://localhost:0/doesnotexist")
+	if err != nil {
+		t.Fatalf("failed to parse URL: %v", err)
+	}
+	// Should fail to open non-existent HTTP file
+	pf := PerFileInfo{DownloadURI: u}
+	_, err = newHTTPLargeFile(context.Background(), bulkspec.Config{}, pf)
 	if err == nil {
 		t.Errorf("expected error for invalid HTTP file")
 	}
@@ -109,8 +119,13 @@ func TestNewHTTPLargeFile_Error(t *testing.T) {
 
 func TestNewGoogleDriveLargeFile_Error(t *testing.T) {
 	// Should fail if context has no drive.Service
-	pf := PerFileInfo{DownloadPath: "fileid"}
-	_, err := newGoogleDriveLargeFile(context.Background(), bulkspec.Config{}, pf)
+	u, err := url.Parse("gdrive://fileid")
+	if err != nil {
+		t.Fatalf("failed to parse URL: %v", err)
+	}
+	// Create a PerFileInfo without a drive service
+	pf := PerFileInfo{DownloadURI: u}
+	_, err = newGoogleDriveLargeFile(context.Background(), bulkspec.Config{}, pf)
 	if err == nil {
 		t.Errorf("expected error for missing drive service")
 	}

@@ -21,10 +21,10 @@ func TestBulkDownload_Cache(t *testing.T) {
 		Prefix: "file://" + tmpDir,
 		Files: []bulkspec.File{
 			{
-				Name:   "testfile",
-				Output: filepath.Join(tmpDir, "output"),
-				Cache:  filepath.Join(tmpDir, "cache"),
-				Index:  filepath.Join(tmpDir, "index"),
+				NameOrID: "testfile",
+				Output:   filepath.Join(tmpDir, "output"),
+				Cache:    filepath.Join(tmpDir, "cache"),
+				Index:    filepath.Join(tmpDir, "index"),
 			},
 		},
 	}
@@ -56,8 +56,8 @@ func TestBulkDownload_Stream(t *testing.T) {
 		Prefix: "file://" + tmpDir,
 		Files: []bulkspec.File{
 			{
-				Name:   "testfile",
-				Output: filepath.Join(tmpDir, "output"),
+				NameOrID: "testfile",
+				Output:   filepath.Join(tmpDir, "output"),
 			},
 		},
 	}

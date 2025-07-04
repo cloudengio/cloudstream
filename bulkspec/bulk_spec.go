@@ -16,8 +16,7 @@ import (
 // File defines the specification for a single file to be downloaded in
 // a bulk operation.
 type File struct {
-	Name         string `json:"name"`                 // The name of the file to download, relative to the prefix in the parent BulkSpec.
-	FileID       string `json:"file_id,omitempty"`    // Optional file ID for the file, used in Google Drive and other services, if present, it overrides the Name field.
+	NameOrID     string `json:"name_or_id"`           // The name or ID of the file to download, relative to the prefix in the parent BulkSpec.
 	DigestBase64 string `json:"digest_b64,omitempty"` // Optional digest of the file. rfc9530 format is expected.
 	DigestHex    string `json:"digest_hex,omitempty"` // Optional hex digest of the file.
 	Output       string `json:"output,omitempty"`     // Optional local output file name, the default is the Name of the file above.
@@ -65,7 +64,7 @@ var exampleSpec = Files{
 	},
 	Files: []File{
 		{
-			Name:         "file1.txt",
+			NameOrID:     "file1.txt",
 			DigestBase64: "sha1=:<base64-digest>:",
 			DigestHex:    "sha1=<hex-digits>..",
 			Output:       "file1.txt",
@@ -73,7 +72,7 @@ var exampleSpec = Files{
 			Index:        "file1.index",
 		},
 		{
-			Name:         "file2.txt",
+			NameOrID:     "file2.txt",
 			DigestBase64: "sha256=:<base64-digest>:",
 			DigestHex:    "sha256=<hex-digits>..",
 		},
@@ -88,7 +87,7 @@ func Example() string {
 	return string(out)
 }
 
-func DigestFromRFC1930(digest string) (digests.Hash, error) {
+func DigestFromRFC9530(digest string) (digests.Hash, error) {
 	algo, _, bytesDigest, err := rfc9530.ParseAlgoDigest(digest)
 	if err != nil {
 		return digests.Hash{}, fmt.Errorf("failed to parse RFC1930 digest: %w", err)
@@ -110,7 +109,7 @@ func DigestFromHex(digest string) (digests.Hash, error) {
 
 func (f File) Digest() (digests.Hash, error) {
 	if f.DigestBase64 != "" {
-		return DigestFromRFC1930(f.DigestBase64)
+		return DigestFromRFC9530(f.DigestBase64)
 	}
 	if f.DigestHex != "" {
 		return DigestFromHex(f.DigestHex)

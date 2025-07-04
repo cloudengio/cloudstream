@@ -32,7 +32,7 @@ type StreamProcessor struct {
 // NewStreamProcessor creates a new StreamProcessor for the given prefix and file
 // specification.
 func NewStreamProcessor(prefix string, config bulkspec.Config, file bulkspec.File, logger *slog.Logger) (*StreamProcessor, error) {
-	uri, err := url.JoinPath(prefix, file.Name)
+	uri, err := url.JoinPath(prefix, file.NameOrID)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func NewStreamProcessor(prefix string, config bulkspec.Config, file bulkspec.Fil
 		config: config,
 		file:   file,
 		uri:    uri,
-		logger: logger.With("file", file.Name, "uri", uri),
+		logger: logger.With("file", file.NameOrID, "uri", uri),
 	}
 	args := make([]string, 0, len(config.Sink.Args))
 	for _, v := range config.Sink.Args {
@@ -49,7 +49,7 @@ func NewStreamProcessor(prefix string, config bulkspec.Config, file bulkspec.Fil
 	}
 	sp.args = args
 	sp.environ = slices.Clone(os.Environ())
-	sp.environ = append(sp.environ, "STREAM_URI="+sp.uri, "STREAM_NAME="+file.Name)
+	sp.environ = append(sp.environ, "STREAM_URI="+sp.uri, "STREAM_NAME="+file.NameOrID)
 	return sp, nil
 }
 
@@ -58,7 +58,7 @@ func (sp *StreamProcessor) envMap(name string) string {
 	case "STREAM_URI":
 		return sp.uri
 	case "STREAM_NAME":
-		return sp.file.Name
+		return sp.file.NameOrID
 	default:
 		return os.ExpandEnv(name)
 	}
@@ -84,7 +84,6 @@ func (sp *StreamProcessor) Run(ctx context.Context, rd io.Reader) error {
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
-	defer out.Close() //nolint:errcheck
 	cmd := exec.CommandContext(ctx, sp.config.Sink.BinaryName, sp.args...)
 	cmd.Stdin = rd
 	cmd.Stdout = out
@@ -93,7 +92,8 @@ func (sp *StreamProcessor) Run(ctx context.Context, rd io.Reader) error {
 	cmd.Env = sp.environ
 	err = cmd.Run()
 	if err != nil {
+		out.Close() //nolint:errcheck
 		return fmt.Errorf("failed to run command: %w", err)
 	}
-	return nil
+	return out.Close()
 }

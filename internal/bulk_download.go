@@ -174,7 +174,7 @@ const ChecksumBlockSize = 16 * 1024 // 32 * 1024 * 1024
 func (bc *BulkDownload) downloadFile(ctx context.Context, opener LargeFileOpenFunc, pf PerFileInfo) (bool, error) {
 	lf, err := opener(ctx, bc.Config, pf)
 	if err != nil {
-		return true, fmt.Errorf("failed to open large file %s: %w", pf.DownloadPath, err)
+		return true, fmt.Errorf("failed to open large file %s: %w", pf.DownloadURI, err)
 	}
 	pf.PreferHeaderDigest(lf)
 
@@ -241,7 +241,7 @@ func (bc *BulkDownload) downloadFile(ctx context.Context, opener LargeFileOpenFu
 
 	dl, err := largefile.NewCachingDownloader(lf, cache, opts...)
 	if err != nil {
-		return true, fmt.Errorf("failed to create caching downloader for file %s: %w", pf.DownloadPath, err)
+		return true, fmt.Errorf("failed to create caching downloader for file %s: %w", pf.DownloadURI, err)
 	}
 
 	var digestErrCh chan error
@@ -256,7 +256,7 @@ func (bc *BulkDownload) downloadFile(ctx context.Context, opener LargeFileOpenFu
 		go func() {
 			err := cd.run(ctx)
 			if err != nil {
-				err = fmt.Errorf("failed to validate digest for file %s: %w", pf.DownloadPath, err)
+				err = fmt.Errorf("failed to validate digest for file %s: %w", pf.DownloadURI, err)
 			}
 			digestErrCh <- err
 			close(digestErrCh)
@@ -277,7 +277,7 @@ func (bc *BulkDownload) downloadFile(ctx context.Context, opener LargeFileOpenFu
 
 	if st.DownloadSize != contentSize {
 		return false, fmt.Errorf("downloaded size %d does not match expected size %d for file %s",
-			st.DownloadSize, contentSize, pf.DownloadPath)
+			st.DownloadSize, contentSize, pf.DownloadURI)
 	}
 
 	return false, os.Rename(pf.Cache, pf.Output) // Rename the cache file to the output file.
@@ -438,11 +438,11 @@ func (bc *BulkDownload) streamFile(ctx context.Context, opener LargeFileOpenFunc
 
 	if st.DownloadSize != contentSize {
 		return false, fmt.Errorf("downloaded bytes %d do not match expected size %d for file %s",
-			st.DownloadSize, contentSize, pf.DownloadPath)
+			st.DownloadSize, contentSize, pf.DownloadURI)
 	}
 	if written != contentSize {
 		return false, fmt.Errorf("written bytes %d do not match expected size %d for file %s",
-			st.DownloadSize, contentSize, pf.DownloadPath)
+			st.DownloadSize, contentSize, pf.DownloadURI)
 	}
 
 	return false, nil

@@ -63,8 +63,8 @@ func TestStreamProcessor(t *testing.T) {
 	}
 
 	fileSpec := bulkspec.File{
-		Name:   "test-file.txt",
-		Output: outputFilename,
+		NameOrID: "test-file.txt",
+		Output:   outputFilename,
 	}
 
 	sp, err := NewStreamProcessor(prefix, prefixSpec, fileSpec, logger)
@@ -111,7 +111,7 @@ func TestStreamProcessor(t *testing.T) {
 			t.Errorf("failed to unmarshal log message: %v", err)
 			continue
 		}
-		if got, want := lm.File, fileSpec.Name; got != want {
+		if got, want := lm.File, fileSpec.NameOrID; got != want {
 			t.Errorf("log message file mismatch: got %q, want %q", got, want)
 		}
 		if got, want := lm.URI, "memfs://my-bucket/data/test-file.txt"; got != want {
