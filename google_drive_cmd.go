@@ -63,12 +63,12 @@ type GoogleDriveStatFlags struct {
 func (cmd *GoogleDriveCmd) Stat(ctx context.Context, flags any, args []string) error {
 	fl := flags.(*GoogleDriveStatFlags)
 
-	srv, err := cmd.createService(ctx, fl.GoogleDriveFlags.CredentialsFile)
+	srv, err := cmd.createService(ctx, fl.CredentialsFile)
 	if err != nil {
 		log.Fatalf("Unable to create Drive service: %v", err)
 	}
 
-	file, err := cmd.byNameOrIDStat(ctx, srv, fl.GoogleDriveFlags.FileID, args[0])
+	file, err := cmd.byNameOrIDStat(ctx, srv, fl.FileID, args[0])
 	if err != nil {
 		log.Fatalf("Unable to retrieve file metadata: %v", err)
 	}
@@ -107,10 +107,10 @@ type GoogleDriveCacheGetFlags struct {
 
 func (cmd *GoogleDriveCmd) Get(ctx context.Context, flags any, args []string) error {
 	fl := flags.(*GoogleDriveCacheGetFlags)
-	ctx = ctxlog.WithLogger(ctx, fl.LoggingFlags.Logger())
-	fl.DownloadFlags = fl.DownloadFlags.SetDefaults()
+	ctx = ctxlog.WithLogger(ctx, fl.Logger())
+	fl.DownloadFlags = fl.SetDefaults()
 
-	srv, err := cmd.createService(ctx, fl.GoogleDriveFlags.CredentialsFile)
+	srv, err := cmd.createService(ctx, fl.CredentialsFile)
 	if err != nil {
 		log.Fatalf("Unable to create Drive service: %v", err)
 	}
@@ -121,13 +121,13 @@ func (cmd *GoogleDriveCmd) Get(ctx context.Context, flags any, args []string) er
 	}
 
 	name := path.Base(file.Name)
-	output := fl.OutputFlags.Output
+	output := fl.Output
 	if output == "" {
 		output = name
 	}
 	bulkSpec := bulkspec.Files{
 		Prefix: "gdrive://",
-		Config: fl.DownloadFlags.BulkConfig(),
+		Config: fl.BulkConfig(),
 		Files: []bulkspec.File{
 			{
 				NameOrID: file.Id,

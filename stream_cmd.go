@@ -24,19 +24,19 @@ type StreamFileFlags struct {
 
 func (cmd *StreamCmd) File(ctx context.Context, flags any, args []string) error {
 	fl := flags.(*StreamFileFlags)
-	ctx = ctxlog.WithLogger(ctx, fl.LoggingFlags.Logger())
-	fl.DownloadFlags = fl.DownloadFlags.SetDefaults()
-	spec, err := fl.DownloadFlags.BulkSpecForSingleURI(args[0], fl.OutputFlags)
+	ctx = ctxlog.WithLogger(ctx, fl.Logger())
+	fl.DownloadFlags = fl.SetDefaults()
+	spec, err := fl.BulkSpecForSingleURI(args[0], fl.OutputFlags)
 	if err != nil {
 		return err
 	}
-	spec.Files[0].DigestBase64 = fl.DigestFlags.DigestBase64
-	spec.Files[0].DigestHex = fl.DigestFlags.DigestHex
-	if fl.OutputFlags.Output != "" {
-		spec.Files[0].Output = fl.OutputFlags.Output
+	spec.Files[0].DigestBase64 = fl.DigestBase64
+	spec.Files[0].DigestHex = fl.DigestHex
+	if fl.Output != "" {
+		spec.Files[0].Output = fl.Output
 	} else {
 		spec.Files[0].Output = "-"
-		fl.DownloadFlags.WithProgress = false
+		fl.WithProgress = false
 	}
 	return streamFiles(ctx, fl.DownloadFlags, fl.VerifyChecksum, 1, spec)
 }
@@ -54,11 +54,11 @@ func (cmd *StreamCmd) Bulk(ctx context.Context, flags any, args []string) error 
 		fmt.Println(bulkspec.Example())
 		return nil
 	}
-	ctx = ctxlog.WithLogger(ctx, fl.LoggingFlags.Logger())
+	ctx = ctxlog.WithLogger(ctx, fl.Logger())
 	spec, err := bulkspec.Parse(args[0])
 	if err != nil {
 		return err
 	}
-	spec.Config = fl.DownloadFlags.PreferFlags(spec.Config)
+	spec.Config = fl.PreferFlags(spec.Config)
 	return streamFiles(ctx, fl.DownloadFlags, fl.VerifyChecksum, fl.OutstandingDownloads, spec)
 }

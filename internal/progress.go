@@ -6,8 +6,6 @@ package internal
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -65,18 +63,6 @@ func (pd *ProgressDisplay) Wait() {
 	pd.progress.Wait()
 	close(pd.doneCh)
 	<-pd.runDoneCh
-
-}
-
-func (pd *ProgressDisplay) completed() {
-	pd.mu.Lock()
-	defer pd.mu.Unlock()
-	var out strings.Builder
-	for i := range len(pd.bars) {
-		bar := pd.bars[i]
-		fmt.Fprintf(&out, "\t%p: %d: completed %v, running %v\n", bar, i, bar.Completed(), bar.IsRunning())
-	}
-	fmt.Printf("\nprogress bars\n%s\n", out.String())
 
 }
 

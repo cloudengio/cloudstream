@@ -131,7 +131,7 @@ func newLocalLargeFile(ctx context.Context, config bulkspec.Config, pf PerFileIn
 func newGoogleDriveLargeFile(ctx context.Context, config bulkspec.Config, pf PerFileInfo) (largefile.Reader, error) {
 	sys := OpenerInfo(ctx)
 	if sys == nil {
-		return nil, fmt.Errorf("Google Drive service is not available in context")
+		return nil, fmt.Errorf("expected Google Drive service is not available in context")
 	}
 	srv, ok := sys.(*drive.Service)
 	if !ok {

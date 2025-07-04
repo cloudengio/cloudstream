@@ -65,9 +65,8 @@ func WithVerifyChecksum(verify bool) func(*downloadOptions) {
 type BulkDownload struct {
 	downloadOptions
 	bulkspec.Config
-	logger   *slog.Logger
-	openFile LargeFileOpenFunc
-	display  *ProgressDisplay // Assuming a type for displaying progress.
+	logger  *slog.Logger
+	display *ProgressDisplay // Assuming a type for displaying progress.
 }
 
 // NewBulkDownload creates a new BulkDownload instance with the provided configuration
@@ -386,13 +385,18 @@ func existsAndIsOfCorrectSize(path string, size int64) (bool, error) {
 
 func (bc *BulkDownload) streamFile(ctx context.Context, opener LargeFileOpenFunc, pf PerFileInfo) (bool, error) {
 	output := os.Stdout
+	closeOutput := func() error {
+		return nil
+	}
 	if pf.Output != "" && pf.Output != "-" {
 		var err error
 		output, err = os.Create(pf.Output)
 		if err != nil {
 			return true, fmt.Errorf("failed to create output file %s: %w", pf.Output, err)
 		}
-		defer output.Close()
+		closeOutput = func() error {
+			return output.Close()
+		}
 	}
 
 	lf, err := opener(ctx, bc.Config, pf)
@@ -433,6 +437,9 @@ func (bc *BulkDownload) streamFile(ctx context.Context, opener LargeFileOpenFunc
 
 	st, err := dl.Run(ctx)
 	errs.Append(err)
+	if err := closeOutput(); err != nil {
+		errs.Append(fmt.Errorf("failed to close output file %s: %w", pf.Output, err))
+	}
 
 	written := <-writtenCh
 
@@ -445,5 +452,5 @@ func (bc *BulkDownload) streamFile(ctx context.Context, opener LargeFileOpenFunc
 			st.DownloadSize, contentSize, pf.DownloadURI)
 	}
 
-	return false, nil
+	return false, errs.Err()
 }

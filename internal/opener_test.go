@@ -9,26 +9,8 @@ import (
 	"net/url"
 	"testing"
 
-	"cloudeng.io/algo/digests"
 	"cloudeng.io/cloudstream/bulkspec"
-	"cloudeng.io/file/largefile"
 )
-
-// fakeLargeFile implements largefile.Reader for testing.
-type fakeLargeFile struct {
-	name string
-}
-
-func (f *fakeLargeFile) Name() string                            { return f.name }
-func (f *fakeLargeFile) ContentLengthAndBlockSize() (int64, int) { return 42, 8 }
-func (f *fakeLargeFile) Digest() digests.Hash                    { return digests.Hash{} }
-func (f *fakeLargeFile) GetReader(_ context.Context, _, _ int64) (largefileRC, largefile.RetryResponse, error) {
-	return nil, nil, nil
-}
-
-type largefileRC interface {
-	Close() error
-}
 
 func TestOpenerForScheme(t *testing.T) {
 	// Known schemes

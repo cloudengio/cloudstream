@@ -70,7 +70,7 @@ func (c DigestCmd) calculateDigest(algo, file string) (digests.Hash, []byte, err
 	if err != nil {
 		return digests.Hash{}, nil, err
 	}
-	defer f.Close()
+
 	fi, err := f.Stat()
 	if err != nil {
 		return digests.Hash{}, nil, err
@@ -84,5 +84,5 @@ func (c DigestCmd) calculateDigest(algo, file string) (digests.Hash, []byte, err
 		return digests.Hash{}, nil, fmt.Errorf("file size mismatch: expected %d bytes, got %d bytes", fi.Size(), n)
 	}
 	// Read the file and update the hash.
-	return h, h.Sum(nil), nil
+	return h, h.Sum(nil), f.Close()
 }
