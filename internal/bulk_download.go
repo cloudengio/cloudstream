@@ -29,30 +29,39 @@ type downloadOptions struct {
 
 type DownloadOption func(*downloadOptions)
 
+// WithDownloadWaitForCompletion sets whether the download should wait for completion
+// and iterate until the download is complete, retrying errors as necessary.
 func WithDownloadWaitForCompletion(wait bool) func(*downloadOptions) {
 	return func(opts *downloadOptions) {
 		opts.waitForCompletion = wait
 	}
 }
 
+// WithDownloadProgress sets whether the download should display progress
+// information during the download process.
 func WithDownloadProgress(withProgress bool) func(*downloadOptions) {
 	return func(opts *downloadOptions) {
 		opts.withProgress = withProgress
 	}
 }
 
+// WithOutstandingDownloads sets the number of outstanding downloads that can be
+// processed concurrently.
 func WithOutstandingDownloads(outstanding int) func(*downloadOptions) {
 	return func(opts *downloadOptions) {
 		opts.outstandingDownloads = outstanding
 	}
 }
 
+// WithVerifyChecksum sets whether the download should verify the checksum of the
+// downloaded file against the expected digest.
 func WithVerifyChecksum(verify bool) func(*downloadOptions) {
 	return func(opts *downloadOptions) {
 		opts.verifyChecksum = verify
 	}
 }
 
+// BulkDownload manages the bulk download of files.
 type BulkDownload struct {
 	downloadOptions
 	bulkspec.Config
@@ -61,6 +70,8 @@ type BulkDownload struct {
 	display  *ProgressDisplay // Assuming a type for displaying progress.
 }
 
+// NewBulkDownload creates a new BulkDownload instance with the provided configuration
+// and options.
 func NewBulkDownload(ctx context.Context, config bulkspec.Config, opts ...DownloadOption) *BulkDownload {
 	bc := &BulkDownload{
 		Config: config,
@@ -73,15 +84,17 @@ func NewBulkDownload(ctx context.Context, config bulkspec.Config, opts ...Downlo
 	}
 	bc.logger = ctxlog.Logger(ctx)
 	if bc.withProgress {
-		bc.display = NewProgressDisplay(ctx)
+		bc.display = NewProgressDisplay()
 	}
 	return bc
 }
 
+// Cache downloads files using a cache that support resuming downloads.
 func (bc *BulkDownload) Cache(ctx context.Context, spec bulkspec.Files) error {
 	return bc.run(ctx, spec, bc.downloadFile)
 }
 
+// Stream downloads files and streams them to the output, typically stdout.
 func (bc *BulkDownload) Stream(ctx context.Context, spec bulkspec.Files) error {
 	return bc.run(ctx, spec, bc.streamFile)
 }
@@ -139,11 +152,11 @@ func (bc *BulkDownload) run(ctx context.Context, spec bulkspec.Files, downloader
 	return nil
 }
 
-func downloadedBytes(st largefile.DownloadState) int64 {
+func downloadedBytes(st largefile.DownloadStats) int64 {
 	return st.DownloadedBytes
 }
 
-func cachedBytes(st largefile.DownloadState) int64 {
+func cachedBytes(st largefile.DownloadStats) int64 {
 	return st.CachedOrStreamedBytes
 }
 
@@ -191,7 +204,7 @@ func (bc *BulkDownload) downloadFile(ctx context.Context, opener LargeFileOpenFu
 	var reserveCh chan<- int64
 	var digestCh chan<- int64
 	if bc.withProgress {
-		dlCh := make(chan largefile.DownloadState, bc.Concurrency)
+		dlCh := make(chan largefile.DownloadStats, bc.Concurrency)
 		remainingDownloadBytes := contentSize
 		if cache == nil {
 			rb := bc.display.AddBytesBar(pf.Name, "reserve", contentSize)
@@ -281,15 +294,12 @@ func (cd calculateDigest) run(ctx context.Context) error {
 	var total int64
 	var lastFrom int64
 	contentSize, _ := cd.cache.ContentLengthAndBlockSize()
-	fmt.Fprintf(os.Stderr, "size %v, block size %v\n", contentSize, ChecksumBlockSize)
 	for {
 		contig := cd.cache.Tail(ctx)
 		if contig.From == -1 {
 			return ctx.Err()
 		}
-		fmt.Fprintf(os.Stderr, "contig: %v\n", contig)
 		for r := range largefile.Ranges(lastFrom, contig.To, ChecksumBlockSize) {
-			fmt.Fprintf(os.Stderr, "range: %v\n", r)
 			buf := cd.buf[:r.Size()]
 			n, err := cd.cache.ReadAt(buf, r.From)
 			if err != nil {
@@ -376,7 +386,6 @@ func existsAndIsOfCorrectSize(path string, size int64) (bool, error) {
 
 func (bc *BulkDownload) streamFile(ctx context.Context, opener LargeFileOpenFunc, pf PerFileInfo) (bool, error) {
 	output := os.Stdout
-	fmt.Printf("Streaming file %s to %s\n", pf.DownloadPath, pf.Output)
 	if pf.Output != "" && pf.Output != "-" {
 		var err error
 		output, err = os.Create(pf.Output)
@@ -402,7 +411,7 @@ func (bc *BulkDownload) streamFile(ctx context.Context, opener LargeFileOpenFunc
 	}
 
 	if bc.withProgress {
-		dlCh := make(chan largefile.DownloadState, bc.Concurrency)
+		dlCh := make(chan largefile.DownloadStats, bc.Concurrency)
 		dp := bc.display.NewDownloadProgressBars(dlCh)
 		dp.AddDownloadMetric(pf.Name, "downloaded", contentSize, downloadedBytes)
 		dp.AddDownloadMetric(pf.Name, "ordered", contentSize, cachedBytes)

@@ -29,17 +29,19 @@ type ProgressDisplay struct {
 	runDoneCh chan struct{}
 }
 
-func NewProgressDisplay(ctx context.Context) *ProgressDisplay {
+// NewProgressDisplay creates a new ProgressDisplay instance.
+func NewProgressDisplay() *ProgressDisplay {
 	return &ProgressDisplay{
 		bars:      make(map[int]*mpb.Bar),
-		progress:  mpb.NewWithContext(ctx, mpb.WithRefreshRate(100*time.Millisecond)),
 		ch:        make(chan progressReport, 100),
 		doneCh:    make(chan struct{}),
 		runDoneCh: make(chan struct{}),
 	}
 }
 
+// Run starts the progress display which will contain all the progress bars.
 func (pd *ProgressDisplay) Run(ctx context.Context) {
+	pd.progress = mpb.NewWithContext(ctx, mpb.WithRefreshRate(100*time.Millisecond))
 	go func() {
 		for {
 			select {
@@ -58,6 +60,7 @@ func (pd *ProgressDisplay) Run(ctx context.Context) {
 	}()
 }
 
+// Wait blocks until all progress bars are completed and the display is done.
 func (pd *ProgressDisplay) Wait() {
 	pd.progress.Wait()
 	close(pd.doneCh)
@@ -138,7 +141,7 @@ type downloadMetric struct {
 // a cache file.
 type DownloadProgressBars struct {
 	pd         *ProgressDisplay
-	downloadCh <-chan largefile.DownloadState
+	downloadCh <-chan largefile.DownloadStats
 	mu         sync.RWMutex
 	metrics    *list.Double[downloadMetric]
 }
@@ -179,6 +182,7 @@ func (pd *ProgressDisplay) newBar(name, op string, total int64) (int, *mpb.Bar) 
 	return id, bar
 }
 
+// AddBytesBar creates a new BytesProgressBar and adds it to the ProgressDisplay.
 func (pd *ProgressDisplay) AddBytesBar(name, op string, total int64) *BytesProgressBar {
 	id, bar := pd.newBar(name, op, total)
 	pbar := &BytesProgressBar{
@@ -192,7 +196,10 @@ func (pd *ProgressDisplay) AddBytesBar(name, op string, total int64) *BytesProgr
 	return pbar
 }
 
-func (pd *ProgressDisplay) NewDownloadProgressBars(ch <-chan largefile.DownloadState) *DownloadProgressBars {
+// NewDownloadProgressBars creates a new DownloadProgressBars instance that listens
+// for download updates on the provided channel. There are two progress bars,
+// one that tracks downloaded bytes and the other that tracks cached bytes.
+func (pd *ProgressDisplay) NewDownloadProgressBars(ch <-chan largefile.DownloadStats) *DownloadProgressBars {
 	return &DownloadProgressBars{
 		pd:         pd,
 		downloadCh: ch,
@@ -200,7 +207,7 @@ func (pd *ProgressDisplay) NewDownloadProgressBars(ch <-chan largefile.DownloadS
 	}
 }
 
-type MetricFunc func(st largefile.DownloadState) int64
+type MetricFunc func(st largefile.DownloadStats) int64
 
 func (dp *DownloadProgressBars) AddDownloadMetric(name, op string, total int64, metric MetricFunc) {
 	id, _ := dp.pd.newBar(name, op, total)

@@ -15,23 +15,16 @@ import (
 type StreamCmd struct{}
 
 type StreamFileFlags struct {
-	CommonFlags
+	LoggingFlags
 	DownloadFlags
 	DigestFlags
 	OutputFlags
 	StreamFlags
 }
 
-type StreamBulkFlags struct {
-	CommonFlags
-	DownloadFlags
-	BulkFlags
-	StreamFlags
-}
-
 func (cmd *StreamCmd) File(ctx context.Context, flags any, args []string) error {
 	fl := flags.(*StreamFileFlags)
-	ctx = ctxlog.WithLogger(ctx, fl.CommonFlags.Logger())
+	ctx = ctxlog.WithLogger(ctx, fl.LoggingFlags.Logger())
 	fl.DownloadFlags = fl.DownloadFlags.SetDefaults()
 	spec, err := fl.DownloadFlags.BulkSpecForSingleURI(args[0], fl.OutputFlags)
 	if err != nil {
@@ -48,13 +41,20 @@ func (cmd *StreamCmd) File(ctx context.Context, flags any, args []string) error 
 	return streamFiles(ctx, fl.DownloadFlags, fl.VerifyChecksum, 1, spec)
 }
 
+type StreamBulkFlags struct {
+	LoggingFlags
+	DownloadFlags
+	BulkFlags
+	StreamFlags
+}
+
 func (cmd *StreamCmd) Bulk(ctx context.Context, flags any, args []string) error {
 	fl := flags.(*StreamBulkFlags)
 	if fl.DisplaySpec {
 		fmt.Println(bulkspec.Example())
 		return nil
 	}
-	ctx = ctxlog.WithLogger(ctx, fl.CommonFlags.Logger())
+	ctx = ctxlog.WithLogger(ctx, fl.LoggingFlags.Logger())
 	spec, err := bulkspec.Parse(args[0])
 	if err != nil {
 		return err

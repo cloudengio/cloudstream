@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"cloudeng.io/algo/digests"
@@ -50,7 +51,7 @@ func PerFile(spec bulkspec.Files) ([]PerFileInfo, LargeFileOpenFunc, error) {
 	for i, f := range spec.Files {
 		fn := f.FileID
 		if len(fn) == 0 {
-			fn, err = url.JoinPath(spec.Prefix, f.Name)
+			fn, err = url.JoinPath(u.Path, f.Name)
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to join prefix %s with file name %s: %w", spec.Prefix, f.Name, err)
 			}
@@ -120,7 +121,11 @@ func newHTTPLargeFile(ctx context.Context, config bulkspec.Config, pf PerFileInf
 }
 
 func newLocalLargeFile(ctx context.Context, config bulkspec.Config, pf PerFileInfo) (largefile.Reader, error) {
-	lf, err := localfs.NewLargeFile(pf.DownloadPath, config.BlockSize, pf.Digest)
+	f, err := os.Open(pf.DownloadPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open local file %s: %w", pf.DownloadPath, err)
+	}
+	lf, err := localfs.NewLargeFile(f, config.BlockSize, pf.Digest)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create local large file reader for %s: %w", pf.DownloadPath, err)
 	}
@@ -146,10 +151,15 @@ func newGoogleDriveLargeFile(ctx context.Context, config bulkspec.Config, pf Per
 
 type openerCtxKey struct{}
 
+// ContextWithOpenerInfo returns a new context with the provided system information
+// associated with the openerCtxKey. This is used to pass information about the
+// opener (e.g., Google Drive service) to the large file reader functions.
 func ContextWithOpenerInfo(ctx context.Context, sys any) context.Context {
 	return context.WithValue(ctx, openerCtxKey(struct{}{}), sys)
 }
 
+// OpenerInfo retrieves the opener information from the context.
+// It returns nil if no opener information is found.
 func OpenerInfo(ctx context.Context) any {
 	if v := ctx.Value(openerCtxKey(struct{}{})); v != nil {
 		return v

@@ -19,30 +19,11 @@ import (
 
 type GoogleDriveCmd struct{}
 
+// GoogleDriveFlags contains flags common to all Google Drive commands.
 type GoogleDriveFlags struct {
+	LoggingFlags
 	CredentialsFile string `subcmd:"credentials-file,google-drive-credentials.json,Google Drive service account credentials file"`
 	FileID          bool   `subcmd:"file-id,false,interpret arguments as file IDs rather than file names"`
-}
-
-type GoogleDriveCacheBulkFlags struct {
-	GoogleDriveFlags
-	CommonFlags
-	DownloadFlags
-	OutputFlags
-	CacheFlags
-	BulkFlags
-}
-
-type GoogleDriveCacheGetFlags struct {
-	GoogleDriveFlags
-	CommonFlags
-	DownloadFlags
-	OutputFlags
-	CacheFlags
-}
-
-type GoogleDriveStatFlags struct {
-	GoogleDriveFlags
 }
 
 func (cmd *GoogleDriveCmd) createService(ctx context.Context, credentialsFile string) (*drive.Service, error) {
@@ -71,6 +52,10 @@ func (cmd *GoogleDriveCmd) byNameOrIDStat(ctx context.Context, srv *drive.Servic
 		return nil, fmt.Errorf("unable to resolve file ID or name: %w", err)
 	}
 	return gdrive.GetWithFields(ctx, srv, file.Id, "id", "name", "size", "md5Checksum", "sha1Checksum", "sha256Checksum", "parents")
+}
+
+type GoogleDriveStatFlags struct {
+	GoogleDriveFlags
 }
 
 func (cmd *GoogleDriveCmd) Stat(ctx context.Context, flags any, args []string) error {
@@ -111,9 +96,16 @@ func (cmd *GoogleDriveCmd) Stat(ctx context.Context, flags any, args []string) e
 	return nil
 }
 
+type GoogleDriveCacheGetFlags struct {
+	GoogleDriveFlags
+	DownloadFlags
+	OutputFlags
+	CacheFlags
+}
+
 func (cmd *GoogleDriveCmd) Get(ctx context.Context, flags any, args []string) error {
 	fl := flags.(*GoogleDriveCacheGetFlags)
-	ctx = ctxlog.WithLogger(ctx, fl.CommonFlags.Logger())
+	ctx = ctxlog.WithLogger(ctx, fl.LoggingFlags.Logger())
 	fl.DownloadFlags = fl.DownloadFlags.SetDefaults()
 
 	srv, err := cmd.createService(ctx, fl.GoogleDriveFlags.CredentialsFile)
@@ -150,4 +142,12 @@ func (cmd *GoogleDriveCmd) Get(ctx context.Context, flags any, args []string) er
 		panic("Google Drive service in context does not match the created service")
 	}
 	return cacheFiles(ctx, fl.DownloadFlags, 1, bulkSpec)
+}
+
+type GoogleDriveCacheBulkFlags struct {
+	GoogleDriveFlags
+	DownloadFlags
+	OutputFlags
+	CacheFlags
+	BulkFlags
 }

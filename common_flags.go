@@ -15,11 +15,11 @@ import (
 	"cloudeng.io/cloudstream/bulkspec"
 )
 
-type CommonFlags struct {
+type LoggingFlags struct {
 	Logfile string `subcmd:"log-file,,'log file name, if not set, logs are written to stdout'"`
 }
 
-func (cf CommonFlags) Logger() *slog.Logger {
+func (cf LoggingFlags) Logger() *slog.Logger {
 	if cf.Logfile == "" {
 		return slog.New(slog.NewJSONHandler(os.Stderr, nil))
 	}

@@ -15,22 +15,16 @@ import (
 type CacheCmd struct{}
 
 type CacheFileFlags struct {
-	CommonFlags
+	LoggingFlags
 	DownloadFlags
 	DigestFlags
 	OutputFlags
 	CacheFlags
 }
 
-type CacheBulkFlags struct {
-	CommonFlags
-	DownloadFlags
-	BulkFlags
-}
-
 func (cmd *CacheCmd) File(ctx context.Context, flags any, args []string) error {
 	fl := flags.(*CacheFileFlags)
-	ctx = ctxlog.WithLogger(ctx, fl.CommonFlags.Logger())
+	ctx = ctxlog.WithLogger(ctx, fl.LoggingFlags.Logger())
 	fl.DownloadFlags = fl.DownloadFlags.SetDefaults()
 	spec, err := fl.DownloadFlags.BulkSpecForSingleURI(args[0], fl.OutputFlags)
 	if err != nil {
@@ -43,13 +37,19 @@ func (cmd *CacheCmd) File(ctx context.Context, flags any, args []string) error {
 	return cacheFiles(ctx, fl.DownloadFlags, 1, spec)
 }
 
+type CacheBulkFlags struct {
+	LoggingFlags
+	DownloadFlags
+	BulkFlags
+}
+
 func (cmd *CacheCmd) Bulk(ctx context.Context, flags any, args []string) error {
 	fl := flags.(*CacheBulkFlags)
 	if fl.DisplaySpec {
 		fmt.Println(bulkspec.Example())
 		return nil
 	}
-	ctx = ctxlog.WithLogger(ctx, fl.CommonFlags.Logger())
+	ctx = ctxlog.WithLogger(ctx, fl.LoggingFlags.Logger())
 	spec, err := bulkspec.Parse(args[0])
 	if err != nil {
 		return err
