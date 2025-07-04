@@ -39,15 +39,17 @@ func (cmd *GoogleDriveCmd) createService(ctx context.Context, credentialsFile st
 	return srv, nil
 }
 
-func (cmd *GoogleDriveCmd) byNameOrID(ctx context.Context, srv *drive.Service, identifier string) (*drive.File, error) {
-	if identifier == "" {
-		return gdrive.GetWithFields(ctx, srv, identifier, "id", "name", "size", "md5Checksum", "sha1Checksum", "sha256Checksum")
+// byNameOrID resolves a file by its name or ID according to the asID flag.
+// The returned file contains only the ID and name fields.
+func (cmd *GoogleDriveCmd) byNameOrID(ctx context.Context, srv *drive.Service, asID bool, identifier string) (*drive.File, error) {
+	if asID {
+		return gdrive.GetWithFields(ctx, srv, identifier, "id", "name")
 	}
-	return gdrive.GetFileID(ctx, srv, fmt.Sprintf("name = '%s'", identifier))
+	return gdrive.GetFileID(ctx, srv, fmt.Sprintf("name=%q", identifier))
 }
 
-func (cmd *GoogleDriveCmd) byNameOrIDStat(ctx context.Context, srv *drive.Service, identifier string) (*drive.File, error) {
-	file, err := cmd.byNameOrID(ctx, srv, identifier)
+func (cmd *GoogleDriveCmd) byNameOrIDStat(ctx context.Context, srv *drive.Service, asID bool, identifier string) (*drive.File, error) {
+	file, err := cmd.byNameOrID(ctx, srv, asID, identifier)
 	if err != nil {
 		return nil, fmt.Errorf("unable to resolve file ID or name: %w", err)
 	}
@@ -66,7 +68,7 @@ func (cmd *GoogleDriveCmd) Stat(ctx context.Context, flags any, args []string) e
 		log.Fatalf("Unable to create Drive service: %v", err)
 	}
 
-	file, err := cmd.byNameOrIDStat(ctx, srv, args[0])
+	file, err := cmd.byNameOrIDStat(ctx, srv, fl.GoogleDriveFlags.FileID, args[0])
 	if err != nil {
 		log.Fatalf("Unable to retrieve file metadata: %v", err)
 	}
@@ -113,7 +115,7 @@ func (cmd *GoogleDriveCmd) Get(ctx context.Context, flags any, args []string) er
 		log.Fatalf("Unable to create Drive service: %v", err)
 	}
 
-	file, err := cmd.byNameOrID(ctx, srv, args[0])
+	file, err := cmd.byNameOrID(ctx, srv, fl.FileID, args[0])
 	if err != nil {
 		log.Fatalf("Unable to resolve file ID: %v", err)
 	}
@@ -128,11 +130,10 @@ func (cmd *GoogleDriveCmd) Get(ctx context.Context, flags any, args []string) er
 		Config: fl.DownloadFlags.BulkConfig(),
 		Files: []bulkspec.File{
 			{
-				Name:   name,
-				FileID: file.Id,
-				Output: output,
-				Cache:  fl.cacheFile(output) + ".cache",
-				Index:  fl.cacheFile(output) + ".index",
+				NameOrID: file.Id,
+				Output:   output,
+				Cache:    fl.cacheFile(output) + ".cache",
+				Index:    fl.cacheFile(output) + ".index",
 			},
 		}}
 

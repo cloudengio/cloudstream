@@ -111,19 +111,6 @@ func cli() *subcmd.CommandSetYAML {
 	cmd.Set("google-drive", "get").MustRunner(gdriveCmd.Get, &GoogleDriveCacheGetFlags{})
 	cmd.Set("google-drive", "stat").MustRunner(gdriveCmd.Stat, &GoogleDriveStatFlags{})
 
-	/*  httpCmd := &HTTPCmd{}
-	cmd.Set("http", "get").MustRunner(httpCmd.Get, &HTTPGetFlags{})
-	cmd.Set("http", "bulk-get").MustRunner(httpCmd.BulkGet, &HTTPBulkGetFlags{})
-	cmd.Set("http", "stream").MustRunner(httpCmd.Stream, &HTTPStreamFlags{})
-	cmd.Set("http", "bulk-stream").MustRunner(httpCmd.BulkStream, &HTTPBulkStreamFlags{})
-
-	idxCmd := &IndexCmd{}
-	cmd.Set("index", "cached").MustRunner(idxCmd.Cached, &IndexFlags{})
-	cmd.Set("index", "outstanding").MustRunner(idxCmd.Outstanding, &IndexFlags{})
-	cmd.Set("index", "summary").MustRunner(idxCmd.Summary, &IndexFlags{})
-
-	*/
-
 	digestCmd := &DigestCmd{}
 	cmd.Set("digest", "compute").MustRunner(digestCmd.Compute, &DigestComputeFlags{})
 	return cmd

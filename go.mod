@@ -6,12 +6,12 @@ toolchain go1.24.4
 
 require (
 	cloudeng.io/algo v0.0.0-20250704213700-f63abc8c1c84
-	cloudeng.io/cmdutil v0.0.0-20250704201408-c17a1cef79c1
+	cloudeng.io/cmdutil v0.0.0-20250704213700-f63abc8c1c84
 	cloudeng.io/errors v0.0.12
 	cloudeng.io/file v0.0.0-20250704213700-f63abc8c1c84
 	cloudeng.io/google v0.0.0-20250704213700-f63abc8c1c84
-	cloudeng.io/logging v0.0.0-20250704201408-c17a1cef79c1
-	cloudeng.io/net v0.0.0-20250704201408-c17a1cef79c1
+	cloudeng.io/logging v0.0.0-20250704213700-f63abc8c1c84
+	cloudeng.io/net v0.0.0-20250704213700-f63abc8c1c84
 	cloudeng.io/sync v0.0.8
 	github.com/vbauerster/mpb/v8 v8.10.2
 	google.golang.org/api v0.240.0
@@ -21,7 +21,7 @@ require (
 	cloud.google.com/go/auth v0.16.2 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.7.0 // indirect
-	cloudeng.io/sys v0.0.0-20250704201408-c17a1cef79c1 // indirect
+	cloudeng.io/sys v0.0.0-20250704213700-f63abc8c1c84 // indirect
 	cloudeng.io/text v0.0.11 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d // indirect

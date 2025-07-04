@@ -47,7 +47,7 @@ func (fl DownloadFlags) BulkConfig() bulkspec.Config {
 }
 
 func (fl DownloadFlags) PreferFlags(c bulkspec.Config) bulkspec.Config {
-	bs := bulkspec.Config{}
+	bs := c
 	if fl.BlockSize > 0 {
 		bs.BlockSize = fl.BlockSize
 	}
@@ -76,7 +76,7 @@ func (dl DownloadFlags) BulkSpecForSingleURI(uri string, of OutputFlags) (bulksp
 	if err != nil {
 		return bulkspec.Files{}, fmt.Errorf("failed to parse URI %s: %w", uri, err)
 	}
-	root := u.Scheme + "://" + u.Host + "/" + path.Dir(u.Path)
+	root := u.Scheme + "://" + u.Host + path.Dir(u.Path)
 	bn := path.Base(u.Path)
 	output := of.Output
 	if output == "" {
@@ -87,8 +87,8 @@ func (dl DownloadFlags) BulkSpecForSingleURI(uri string, of OutputFlags) (bulksp
 		Config: dl.BulkConfig(),
 		Files: []bulkspec.File{
 			{
-				Name:   bn,
-				Output: output,
+				NameOrID: bn,
+				Output:   output,
 			},
 		},
 	}, nil

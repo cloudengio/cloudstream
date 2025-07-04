@@ -8,6 +8,8 @@ cloudeng.io/algo v0.0.0-20250704213700-f63abc8c1c84 h1:fbq/9VshTUYa8ZFzhDjgcHk/Z
 cloudeng.io/algo v0.0.0-20250704213700-f63abc8c1c84/go.mod h1:UZ8vyc4kEQUKOdaj5K0KfFZjUbSguHKBTEkhzA17zmw=
 cloudeng.io/cmdutil v0.0.0-20250704201408-c17a1cef79c1 h1:XOxwCNwXs1vRb45n1nKpWpxDZlU73DgAsb8zHXOsAsk=
 cloudeng.io/cmdutil v0.0.0-20250704201408-c17a1cef79c1/go.mod h1:DPmPt2BHWbkbVQ96AwvESlACDFHncHvXNqdFs0/e/68=
+cloudeng.io/cmdutil v0.0.0-20250704213700-f63abc8c1c84 h1:FMMCpK09JcnnVRC7P+omLMXYzgNWkvUCOsJSzA1siJk=
+cloudeng.io/cmdutil v0.0.0-20250704213700-f63abc8c1c84/go.mod h1:DPmPt2BHWbkbVQ96AwvESlACDFHncHvXNqdFs0/e/68=
 cloudeng.io/debug v0.0.0-20231026032435-4ad1389db593 h1:WEFkomseqbtoV3sDgMh25BeMUjajGB3nFRUbV1X/auo=
 cloudeng.io/debug v0.0.0-20231026032435-4ad1389db593/go.mod h1:L94l9rix3PTZaCmlR4UiHtcU0ZVlFu5/BWbwgWSqqqk=
 cloudeng.io/errors v0.0.8/go.mod h1:xWamLL6tn3roKI6MRRFkw1jUkJL9s7CJzFYfaxuhHZk=
@@ -19,12 +21,18 @@ cloudeng.io/google v0.0.0-20250704213700-f63abc8c1c84 h1:IgMgBaF1mo/76dHgJlQrADQ
 cloudeng.io/google v0.0.0-20250704213700-f63abc8c1c84/go.mod h1:xATrr861uLRGK1t9x3fM5Y1oSWEQEONp88ZYVqUft1Q=
 cloudeng.io/logging v0.0.0-20250704201408-c17a1cef79c1 h1:s7EGYecXH9Jhaks4aPu3u5aANNIJ26a7V/OtBhhXnhE=
 cloudeng.io/logging v0.0.0-20250704201408-c17a1cef79c1/go.mod h1:D0TUs3Aiwa1c7xI/TE7JITYnICck34r6DR5twakJjIs=
+cloudeng.io/logging v0.0.0-20250704213700-f63abc8c1c84 h1:qA4iPNVTL5zqQHpSC4d1qadXnv5OuAeyRuHr6X7yNnc=
+cloudeng.io/logging v0.0.0-20250704213700-f63abc8c1c84/go.mod h1:D0TUs3Aiwa1c7xI/TE7JITYnICck34r6DR5twakJjIs=
 cloudeng.io/net v0.0.0-20250704201408-c17a1cef79c1 h1:fKLhYPdZCAbNLTnduxI/4jRDXXzqbMQn9D0f/Wp5xFw=
 cloudeng.io/net v0.0.0-20250704201408-c17a1cef79c1/go.mod h1:LEzg9i91UlWYOGyBJ6AqFNRwrIHLGcGRx2h6/iAbEtI=
+cloudeng.io/net v0.0.0-20250704213700-f63abc8c1c84 h1:ZTYkRJYReBUcufZec8iSh8sW40D8q6L0RArqrfaQVn4=
+cloudeng.io/net v0.0.0-20250704213700-f63abc8c1c84/go.mod h1:LEzg9i91UlWYOGyBJ6AqFNRwrIHLGcGRx2h6/iAbEtI=
 cloudeng.io/sync v0.0.8 h1:N8o5Qo5sjxwDktWIW/7rfK14O74jGS3pprefjF3EFKA=
 cloudeng.io/sync v0.0.8/go.mod h1:76qdZzMQSN+iPeQxY9MSbnSELKQmcd9E6pnfRgWgN8s=
 cloudeng.io/sys v0.0.0-20250704201408-c17a1cef79c1 h1:XXB0yBITxak4Ta8CmwwOp/TJYN6u9/qmKXBQqWg0WKs=
 cloudeng.io/sys v0.0.0-20250704201408-c17a1cef79c1/go.mod h1:3vhPQ7lOprxJJPlXk115Xgqsq7IFSoOyirpdYrmP9fU=
+cloudeng.io/sys v0.0.0-20250704213700-f63abc8c1c84 h1:1XLuVkyid4VKyotevf/EcyyIeDjb4458VIPXD2ohUuw=
+cloudeng.io/sys v0.0.0-20250704213700-f63abc8c1c84/go.mod h1:3vhPQ7lOprxJJPlXk115Xgqsq7IFSoOyirpdYrmP9fU=
 cloudeng.io/text v0.0.11 h1:q3+p3gxwNdr/V+k4+77fj9QxVpUU8G7B4+v26m+sE8I=
 cloudeng.io/text v0.0.11/go.mod h1:99L3CQ55YhUy2+lHlFPowYyCoXO86fmkvNtcMT2X3GU=
 cloudeng.io/windows v0.0.0-20250612041530-deb36e66c3b5 h1:+UAXMwMx+4LouXX2k3kes6wly1wWSch8Vv8JpRhtjL8=
@@ -33,6 +41,8 @@ github.com/VividCortex/ewma v1.2.0 h1:f58SaIzcDXrSy3kWaHNvuJgJ3Nmz59Zji6XoJR/q1o
 github.com/VividCortex/ewma v1.2.0/go.mod h1:nz4BbCtbLyFDeC9SUHbtcT5644juEuWfUAUnGx7j5l4=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d h1:licZJFw2RwpHMqeKTCYkitsPqHNxTmd4SNR5r94FGM8=
 github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d/go.mod h1:asat636LX7Bqt5lYEZ27JNDcqxfjdBQuJ/MM4CN/Lzo=
+github.com/aws/aws-sdk-go-v2 v1.36.5 h1:0OF9RiEMEdDdZEMqF9MRjevyxAQcf6gY+E7vwBILFj0=
+github.com/aws/aws-sdk-go-v2 v1.36.5/go.mod h1:EYrzvCCN9CMUTa5+6lf6MM4tq3Zjp8UhSGR/cBsjai0=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.83.0 h1:5Y75q0RPQoAbieyOuGLhjV9P3txvYgXv2lg0UwJOfmE=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.83.0/go.mod h1:kUklwasNoCn5YpyAqC/97r6dzTA1SRKJfKq16SXeoDU=
 github.com/aws/smithy-go v1.22.4 h1:uqXzVZNuNexwc/xrh6Tb56u89WDlJY6HS+KC0S4QSjw=
